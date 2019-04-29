@@ -50,12 +50,15 @@ controlOut: OUT std_logic_vector (31 downto 0);
 AluSelectors : OUT std_logic_vector (3 downto 0);
 PC_Enable: OUT STD_LOGIC;
 REGWRITE1: OUT STD_LOGIC;
+REGWRITE2: OUT STD_LOGIC;
 SETC: OUT STD_LOGIC;
 CLRC: OUT STD_LOGIC;
 IN_TRI: OUT STD_LOGIC;
 OUT_TRI: OUT STD_LOGIC;
 MemWrite: OUT STD_LOGIC;
-twoWords  : OUT std_logic
+twoWords  : OUT std_logic;
+MUL_EN : OUT STD_LOGIC;
+ALU_IMM : OUT STD_LOGIC
 );
 end Component controlunit;
 
@@ -116,14 +119,33 @@ output:OUT std_logic_vector ((n-1) downto 0)
 );
 end Component my_tribuffer;
 --------------------------------------------------------------------------------------------
+-- MULTIPLIER
 
-signal C_FLAG_IN,C_FLAG_IN_1,Z_FLAG_IN,N_FLAG_IN,C_FLAG,Z_FLAG,N_FLAG,C_EN_1,C_EN,Z_EN,N_EN,PC_EN : STD_Logic:='0';
+Component MUL is 
+GENERIC (N :INTEGER := 16);
+Port(
+Rsrc,Rdst : IN STD_LOGIC_VECTOR (N-1 DOWNTO 0);
+MUL_EN: IN STD_LOGIC;
+Z_Flag,N_Flag: OUT STD_LOGIC;
+Z_en,N_en: OUT STD_LOGIC;
+F : OUT STD_LOGIC_VECTOR ((2*N)-1 DOWNTO 0)
+);
+END Component MUL;
+--------------------------------------------------------------------------------------------
+
+signal C_FLAG,C_FLAG_IN,C_FLAG_IN_1,C_EN_1,C_EN : STD_Logic:='0';
+signal Z_FLAG,Z_FLAG_IN,Z_FLAG_IN_1,Z_FLAG_IN_2,Z_EN_1,Z_EN_2,Z_EN: STD_Logic:='0';
+signal N_FLAG,N_FLAG_IN,N_FLAG_IN_1,N_FLAG_IN_2,N_EN_1,N_EN_2,N_EN: STD_Logic:='0';
+signal PC_EN : STD_Logic:='0';
 signal PC_in  : STD_LOGIC_VECTOR (31 DOWNTO 0);
 signal PC_OUT : STD_LOGIC_VECTOR (31 DOWNTO 0);
 signal Counter_Out_1,Counter_Out_2 : STD_LOGIC_VECTOR (31 DOWNTO 0);
 SIGNAL MEMOUT,Instruction : STD_LOGIC_VECTOR (15 DOWNTO 0);
 signal ControlOut : STD_LOGIC_VECTOR (31 downto 0);
-signal IN_TRI_2,IN_TRI_3,IN_TRI_4,IN_TRI_5, OUT_TRI_2,OUT_TRI_3,OUT_TRI_4,OUT_TRI_5 : std_logic:='0';
+signal IN_TRI_2,IN_TRI_3,IN_TRI_4,IN_TRI_5 : std_logic:='0';
+signal OUT_TRI_2,OUT_TRI_3 : std_logic:='0';
+signal ALU_IMM_2,ALU_IMM_3 : std_logic:='0';
+signal MUL_EN_2,MUL_EN_3 : std_logic:='0';
 signal REGWRITE1_2,REGWRITE1_3,REGWRITE1_4,REGWRITE1_5  : std_logic:='0';
 signal REGWRITE2_2,REGWRITE2_3,REGWRITE2_4,REGWRITE2_5  : std_logic:='0';
 signal MemWrite_2,MemWrite_3,MemWrite_4 : std_logic:='0';
@@ -138,6 +160,7 @@ signal Rsrc_3,Rsrc_4,Rsrc_5 : std_logic_vector (2 downto 0);
 signal IMM_3,IMM_4,IMM_5 : STD_LOGIC_VECTOR (15 DOWNTO 0):=x"0000";
 signal EA_3,EA_4 : std_logic_vector (3 downto 0):="0000";
 signal ALU_OUT_3,ALU_OUT_4,ALU_OUT_5 : std_logic_vector (15 downto 0);
+signal MUL_OUT_3,MUL_OUT_4,MUL_OUT_5 : std_logic_vector (31 downto 0);
 signal WRITEDATA1_5,WRITEDATA2_5 : STD_LOGIC_VECTOR (15 DOWNTO 0):=x"0000";
 signal  PORT_INOUT_3,PORT_INOUT_4,PORT_INOUT_5 : STD_LOGIC_VECTOR (15 DOWNTO 0);
 
@@ -164,7 +187,7 @@ B1_2 : my_register generic map (16) port map (MemOut,clk,'0','1',Instruction);
 --------------------------------------------------------------------------------------------
 -- Stage Two: DECODE
 
-C0 : controlunit port map (Instruction(4 downto 0),ControlOut(31 downto 0),AluSelectors_2(3 downto 0),PC_EN,REGWRITE1_2, SETC_2, CLRC_2, IN_TRI_2, OUT_TRI_2, MemWrite_2 , twoWords_2);
+C0 : controlunit port map (Instruction(4 downto 0),ControlOut(31 downto 0),AluSelectors_2(3 downto 0),PC_EN,REGWRITE1_2,REGWRITE2_2, SETC_2, CLRC_2, IN_TRI_2, OUT_TRI_2, MemWrite_2 , twoWords_2,MUL_EN_2,ALU_IMM_2);
 REG0 : RegFile generic map (16) port map (Instruction(7 downto 5),Instruction(10 downto 8),Rdst_5,Rsrc_5,WRITEDATA1_5,WRITEDATA2_5,REGWRITE1_5,REGWRITE2_5,clk,RstRegs,ReadData1_2,ReadData2_2);
 
 -- ReadData1_2 == Rdst
@@ -183,7 +206,9 @@ B2_MEM_2 :register1B port map (twoWords_2,clk,'0','1',twoWords_3);
 
 B2_ALU_1 :register1B port map (SETC_2,clk,'0','1',SETC_3);
 B2_ALU_2 :register1B port map (ClRC_2,clk,'0','1',CLRC_3);
-B2_ALU_3 :my_register generic map (4) port map (AluSelectors_2(3 downto 0),clk,'0','1',AluSelectors_3(3 downto 0));
+B2_ALU_3 :register1B port map (MUL_EN_2,clk,'0','1',MUL_EN_3);
+B2_ALU_4 :register1B port map (ALU_IMM_2,clk,'0','1',ALU_IMM_3);
+B2_ALU_5 :my_register generic map (4) port map (AluSelectors_2(3 downto 0),clk,'0','1',AluSelectors_3(3 downto 0));
 
 B2_1 : my_register generic map (16) port map (ReadData1_2,clk,'0','1',ReadData1_3);
 B2_2 : my_register generic map (16) port map (ReadData2_2,clk,'0','1',ReadData2_3);
@@ -198,10 +223,18 @@ B2_7 : my_register generic map (16) port map (PORT_INOUT(15 downto 0),clk,'0',IN
 --------------------------------------------------------------------------------------------
 -- Stage Three: EXECUTE
 
-A0 : ALU port map (ReadData2_3(15 downto 0),ReadData1_3(15 downto 0),AluSelectors_3(3 downto 0),C_FLAG_IN_1,Z_FLAG_IN,N_FLAG_IN,C_EN_1,Z_EN,N_EN,ALU_OUT_3(15 downto 0));
+A0 : ALU port map (ReadData2_3(15 downto 0),ReadData1_3(15 downto 0),AluSelectors_3(3 downto 0),C_FLAG_IN_1,Z_FLAG_IN_1,N_FLAG_IN_1,C_EN_1,Z_EN_1,N_EN_1,ALU_OUT_3(15 downto 0));
+MUL0 : MUL generic map (16) port map (ReadData2_3(15 downto 0),ReadData1_3(15 downto 0),MUL_EN_3,Z_FLAG_IN_2,N_FLAG_IN_2,Z_EN_2,N_EN_2,MUL_OUT_3(31 downto 0));
+
 
 C_FLAG_IN <= C_FLAG_IN_1 OR SETC_3 ;
 C_EN <= C_EN_1 OR SETC_3 ;
+
+Z_FLAG_IN <= Z_FLAG_IN_1 OR Z_FLAG_IN_2 ;
+Z_EN <= Z_EN_1 OR Z_EN_2 ;
+
+N_FLAG_IN <= N_FLAG_IN_1 OR N_FLAG_IN_2 ;
+N_EN <= N_EN_1 OR N_EN_2 ;
 
 Carry : register1B port map (C_FLAG_IN,clk,CLRC_3,C_EN,C_FLAG);
 Negative : register1B port map (N_FLAG_IN,clk,'0',N_EN,N_FLAG);
@@ -223,9 +256,10 @@ B3_1 : my_register generic map (3) port map (Rdst_3,clk,'0','1',Rdst_4);
 B3_2 : my_register generic map (3) port map (Rsrc_3,clk,'0','1',Rsrc_4);
 
 B3_3 : my_register generic map (16) port map (ALU_OUT_3(15 downto 0),clk,'0','1',ALU_OUT_4(15 downto 0));
-B3_4 : my_register generic map (4) port map (EA_3(3 downto 0),clk,'0','1',EA_4(3 downto 0));
-B3_5 : my_register generic map (16) port map (IMM_3(15 downto 0),clk,'0','1',IMM_4(15 downto 0));
-B3_6 : my_register generic map (16) port map (PORT_INOUT_3(15 downto 0),clk,'0','1',PORT_INOUT_4(15 downto 0));
+B3_4 : my_register generic map (32) port map (MUL_OUT_3(31 downto 0),clk,'0','1',MUL_OUT_4(31 downto 0));
+B3_5 : my_register generic map (4) port map (EA_3(3 downto 0),clk,'0','1',EA_4(3 downto 0));
+B3_6 : my_register generic map (16) port map (IMM_3(15 downto 0),clk,'0','1',IMM_4(15 downto 0));
+B3_7 : my_register generic map (16) port map (PORT_INOUT_3(15 downto 0),clk,'0','1',PORT_INOUT_4(15 downto 0));
 
 --------------------------------------------------------------------------------------------
 -- Stage Four: MEMORY
@@ -242,15 +276,19 @@ B4_1 : my_register generic map (3) port map (Rdst_4,clk,'0','1',Rdst_5);
 B4_2 : my_register generic map (3) port map (Rsrc_4,clk,'0','1',Rsrc_5);
 
 B4_3 : my_register generic map (16) port map (ALU_OUT_4(15 downto 0),clk,'0','1',ALU_OUT_5(15 downto 0));
-B4_4 : my_register generic map (16) port map (IMM_4(15 downto 0),clk,'0','1',IMM_5(15 downto 0));
-B4_5 : my_register generic map (16) port map (PORT_INOUT_4(15 downto 0),clk,'0','1',PORT_INOUT_5(15 downto 0));
+B4_4 : my_register generic map (32) port map (MUL_OUT_4(31 downto 0),clk,'0','1',MUL_OUT_5(31 downto 0));
+B4_5 : my_register generic map (16) port map (IMM_4(15 downto 0),clk,'0','1',IMM_5(15 downto 0));
+B4_6 : my_register generic map (16) port map (PORT_INOUT_4(15 downto 0),clk,'0','1',PORT_INOUT_5(15 downto 0));
 
 --------------------------------------------------------------------------------------------
 -- Stage Five: WRITE BACK
 
-WRITEDATA1_5 (15 downto 0) <= ALU_OUT_5(15 downto 0) when IN_TRI_5='0'
+WRITEDATA1_5 (15 downto 0) <= MUL_OUT_5(15 downto 0) when REGWRITE2_5='1'
+else ALU_OUT_5(15 downto 0) when IN_TRI_5='0'
 else PORT_INOUT_5 (15 downto 0);
-WRITEDATA2_5 (15 downto 0) <= x"0000";
+
+WRITEDATA2_5 (15 downto 0) <=MUL_OUT_5(31 downto 16) when REGWRITE2_5='1'
+else x"0000";
 
 --------------------------------------------------------------------------------------------
 

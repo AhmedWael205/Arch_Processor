@@ -13,6 +13,6 @@ end entity my_tribuffer;
 
 architecture A_my_tribuffer of my_tribuffer is
 begin
-output<=input when control='1'
-else (others=>'Z');
+output<=input when control='1';
+-- else (others=>'Z');
 end architecture A_my_tribuffer;

@@ -1,22 +1,4 @@
 vsim -gui work.proccesor
-# End time: 15:19:03 on Apr 29,2019, Elapsed time: 1:00:48
-# Errors: 0, Warnings: 3
-# vsim -gui work.proccesor 
-# Start time: 15:19:03 on Apr 29,2019
-# Loading std.standard
-# Loading std.textio(body)
-# Loading ieee.std_logic_1164(body)
-# Loading ieee.numeric_std(body)
-# Loading work.proccesor(a_proccesor)
-# Loading work.my_counter(a_my_counter)
-# Loading work.my_register(a_my_register)
-# Loading work.memory(a_memory)
-# Loading work.controlunit(a_controlunit)
-# Loading work.regfile(a_regfile)
-# Loading work.my_decoder(a_my_decoder)
-# Loading work.register1b(a_register1b)
-# Loading work.alu(a_alu)
-# Loading work.my_tribuffer(a_my_tribuffer)
 add wave -position insertpoint  \
 sim:/proccesor/PORT_INOUT \
 sim:/proccesor/CLK \
@@ -89,6 +71,7 @@ run
 run
 run
 run
+force -freeze sim:/proccesor/PORT_INOUT X\"0010\" 0
 run
 run
 run
@@ -99,6 +82,7 @@ run
 run
 run
 run
+noforce sim:/proccesor/PORT_INOUT
 run
 run
 run

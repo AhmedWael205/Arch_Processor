@@ -8,12 +8,15 @@ controlOut: OUT std_logic_vector (31 downto 0);
 AluSelectors : OUT std_logic_vector (3 downto 0);
 PC_Enable: OUT STD_LOGIC;
 REGWRITE1: OUT STD_LOGIC;
+REGWRITE2: OUT STD_LOGIC;
 SETC: OUT STD_LOGIC;
 CLRC: OUT STD_LOGIC;
 IN_TRI: OUT STD_LOGIC;
 OUT_TRI: OUT STD_LOGIC;
 MemWrite: OUT STD_LOGIC;
-twoWords  : OUT std_logic
+twoWords  : OUT std_logic;
+MUL_EN : OUT STD_LOGIC;
+ALU_IMM : OUT STD_LOGIC
 );
 end Entity controlunit;
 
@@ -71,7 +74,7 @@ ELSE '0';
 OUT_TRI <= '1' WHEN Inst5B="00110"
 ELSE '0';
 
-REGWRITE1 <= '1' WHEN Inst5B="00011" OR Inst5B="00100" OR Inst5B="00101" OR Inst5B="00111"
+REGWRITE1 <= '1' WHEN Inst5B="00011" OR Inst5B="00100" OR Inst5B="00101" OR Inst5B="00111" OR Inst5B="01000" OR Inst5B="01001" OR Inst5B="01010" OR Inst5B="01011" OR Inst5B="01100" OR Inst5B="01101" OR Inst5B="01110" OR Inst5B="01111"
 ELSE '0';
 
 AluSelectors <= 
@@ -91,7 +94,16 @@ MemWrite<='0';
 
 twoWords<='0';
 
-PC_Enable <= '1' WHEN Inst5B="00000" OR Inst5B="00001" OR Inst5B="00010" OR Inst5B="00011" OR Inst5B="00100" OR Inst5B="00101" OR Inst5B="00110" OR Inst5B="00111" OR Inst5B="01000"
+PC_Enable <= '1' WHEN Inst5B="00000" OR Inst5B="00001" OR Inst5B="00010" OR Inst5B="00011" OR Inst5B="00100" OR Inst5B="00101" OR Inst5B="00110" OR Inst5B="00111" OR Inst5B="01000" OR Inst5B="01001" OR Inst5B="01010" OR Inst5B="01011" OR Inst5B="01100" OR Inst5B="01101" OR Inst5B="01110" OR Inst5B="01111" OR Inst5B="10000"
+ELSE '0';
+
+MUL_EN <= '1' WHEN Inst5B="01010"
+ELSE '0';
+
+REGWRITE2 <= '1' WHEN Inst5B="01010"
+ELSE '0';
+
+ALU_IMM <= '1' WHEN Inst5B="01110" OR Inst5B="01111"
 ELSE '0';
 
 end architecture A_controlunit;

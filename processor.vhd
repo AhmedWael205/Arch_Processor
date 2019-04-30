@@ -163,6 +163,7 @@ signal ALU_OUT_3,ALU_OUT_4,ALU_OUT_5 : std_logic_vector (15 downto 0);
 signal MUL_OUT_3,MUL_OUT_4,MUL_OUT_5 : std_logic_vector (31 downto 0);
 signal WRITEDATA1_5,WRITEDATA2_5 : STD_LOGIC_VECTOR (15 DOWNTO 0):=x"0000";
 signal  PORT_INOUT_3,PORT_INOUT_4,PORT_INOUT_5 : STD_LOGIC_VECTOR (15 DOWNTO 0);
+signal ALU_IN_1,ALU_IN_2,SHF_IMM_2,SHF_IMM_3 : STD_LOGIC_VECTOR (15 DOWNTO 0);
 
 --------------------------------------------------------------------------------------------
 
@@ -189,6 +190,7 @@ B1_2 : my_register generic map (16) port map (MemOut,clk,'0','1',Instruction);
 
 C0 : controlunit port map (Instruction(4 downto 0),ControlOut(31 downto 0),AluSelectors_2(3 downto 0),PC_EN,REGWRITE1_2,REGWRITE2_2, SETC_2, CLRC_2, IN_TRI_2, OUT_TRI_2, MemWrite_2 , twoWords_2,MUL_EN_2,ALU_IMM_2);
 REG0 : RegFile generic map (16) port map (Instruction(7 downto 5),Instruction(10 downto 8),Rdst_5,Rsrc_5,WRITEDATA1_5,WRITEDATA2_5,REGWRITE1_5,REGWRITE2_5,clk,RstRegs,ReadData1_2,ReadData2_2);
+SHF_IMM_2 (15 downto 0) <= "00000000000" & Instruction(15 downto 11);
 
 -- ReadData1_2 == Rdst
 -- ReadData2_2 == RSrc
@@ -219,11 +221,16 @@ B2_4 : my_register generic map (3) port map (Instruction(10 downto 8),clk,'0','1
 B2_5 : my_register generic map (16) port map (Instruction(15 downto 0),clk,'0','1',IMM_3(15 downto 0));
 B2_6 : my_register generic map (4) port map (Instruction(15 downto 12),clk,'0','1',EA_3(3 downto 0));
 B2_7 : my_register generic map (16) port map (PORT_INOUT(15 downto 0),clk,'0',IN_TRI_2,PORT_INOUT_3(15 downto 0));
+B2_8 : my_register generic map (16) port map (SHF_IMM_2 (15 downto 0),clk,'0',IN_TRI_2,SHF_IMM_3(15 downto 0));
 
 --------------------------------------------------------------------------------------------
 -- Stage Three: EXECUTE
 
-A0 : ALU port map (ReadData2_3(15 downto 0),ReadData1_3(15 downto 0),AluSelectors_3(3 downto 0),C_FLAG_IN_1,Z_FLAG_IN_1,N_FLAG_IN_1,C_EN_1,Z_EN_1,N_EN_1,ALU_OUT_3(15 downto 0));
+ALU_IN_1 (15 downto 0) <= ReadData2_3(15 downto 0);
+ALU_IN_2 (15 downto 0) <= ReadData1_3(15 downto 0) when ALU_IMM_3 = '0'
+		   else   SHF_IMM_3(15 downto 0);   
+
+A0 : ALU port map (ALU_IN_1 (15 downto 0),ALU_IN_2 (15 downto 0),AluSelectors_3(3 downto 0),C_FLAG_IN_1,Z_FLAG_IN_1,N_FLAG_IN_1,C_EN_1,Z_EN_1,N_EN_1,ALU_OUT_3(15 downto 0));
 MUL0 : MUL generic map (16) port map (ReadData2_3(15 downto 0),ReadData1_3(15 downto 0),MUL_EN_3,Z_FLAG_IN_2,N_FLAG_IN_2,Z_EN_2,N_EN_2,MUL_OUT_3(31 downto 0));
 
 

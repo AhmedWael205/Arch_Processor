@@ -1,0 +1,101 @@
+vsim -gui work.proccesor
+add wave -position insertpoint  \
+sim:/proccesor/PORT_INOUT \
+sim:/proccesor/CLK \
+sim:/proccesor/RstMem \
+sim:/proccesor/RstCounter \
+sim:/proccesor/RstRegs \
+sim:/proccesor/C_FLAG \
+sim:/proccesor/C_EN \
+sim:/proccesor/Z_FLAG \
+sim:/proccesor/Z_EN \
+sim:/proccesor/N_FLAG \
+sim:/proccesor/N_EN \
+sim:/proccesor/PC_OUT \
+sim:/proccesor/Counter_Out_1 \
+sim:/proccesor/MEMOUT \
+sim:/proccesor/Instruction \
+sim:/proccesor/ControlOut \
+sim:/proccesor/IN_TRI_2 \
+sim:/proccesor/IN_TRI_3 \
+sim:/proccesor/IN_TRI_4 \
+sim:/proccesor/IN_TRI_5 \
+sim:/proccesor/OUT_TRI_2 \
+sim:/proccesor/OUT_TRI_3 \
+sim:/proccesor/ALU_IMM_2 \
+sim:/proccesor/ALU_IMM_3 \
+sim:/proccesor/MUL_EN_2 \
+sim:/proccesor/MUL_EN_3 \
+sim:/proccesor/REGWRITE1_2 \
+sim:/proccesor/REGWRITE1_3 \
+sim:/proccesor/REGWRITE1_4 \
+sim:/proccesor/REGWRITE1_5 \
+sim:/proccesor/REGWRITE2_2 \
+sim:/proccesor/REGWRITE2_3 \
+sim:/proccesor/REGWRITE2_4 \
+sim:/proccesor/REGWRITE2_5 \
+sim:/proccesor/AluSelectors_2 \
+sim:/proccesor/AluSelectors_3 \
+sim:/proccesor/ReadData1_2 \
+sim:/proccesor/ReadData1_3 \
+sim:/proccesor/ReadData2_2 \
+sim:/proccesor/ReadData2_3 \
+sim:/proccesor/ALU_OUT_3 \
+sim:/proccesor/ALU_OUT_4 \
+sim:/proccesor/ALU_OUT_5 \
+sim:/proccesor/MUL_OUT_3 \
+sim:/proccesor/MUL_OUT_4 \
+sim:/proccesor/MUL_OUT_5 \
+sim:/proccesor/WRITEDATA1_5 \
+sim:/proccesor/WRITEDATA2_5 \
+sim:/proccesor/ALU_IN_1 \
+sim:/proccesor/ALU_IN_2 \
+sim:/proccesor/SHF_IMM_2 \
+sim:/proccesor/SHF_IMM_3
+# ** Warning: (vsim-WLF-5000) WLF file currently in use: vsim.wlf
+#           File in use by: Ahmed  Hostname: AHMED-PC  ProcessID: 4952
+#           Attempting to use alternate WLF file "./wlftnmzcgg".
+# ** Warning: (vsim-WLF-5001) Could not open WLF file: vsim.wlf
+#           Using alternate file: ./wlftnmzcgg
+add wave -position insertpoint  \
+sim:/proccesor/REG0/R0/output
+add wave -position insertpoint  \
+sim:/proccesor/REG0/R1/output
+add wave -position insertpoint  \
+sim:/proccesor/REG0/R2/output
+add wave -position insertpoint  \
+sim:/proccesor/REG0/R3/output
+add wave -position insertpoint  \
+sim:/proccesor/REG0/R4/output
+add wave -position insertpoint  \
+sim:/proccesor/REG0/R5/output
+mem load -i {D:/Documents/CMPN courses/Computer Architecture/Spring 2019/Project/Project/TwoOperand.mem} /proccesor/M0/ram
+force -freeze sim:/proccesor/CLK 1 0, 0 {50 ps} -r 100
+force -freeze sim:/proccesor/RstRegs 11111111 0
+force -freeze sim:/proccesor/RstCounter 1 0
+run
+force -freeze sim:/proccesor/RstCounter 0 0
+force -freeze sim:/proccesor/RstRegs 00000000 0
+run
+run
+run
+run
+run
+force -freeze sim:/proccesor/PORT_INOUT x\"0005\" 0
+run
+force -freeze sim:/proccesor/PORT_INOUT x\"0019\" 0
+run
+force -freeze sim:/proccesor/PORT_INOUT x\"ffff\" 0
+run
+force -freeze sim:/proccesor/PORT_INOUT x\"f320\" 0
+run
+run
+run
+run
+run
+run
+run
+run
+run
+run
+run

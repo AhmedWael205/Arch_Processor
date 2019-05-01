@@ -1,6 +1,7 @@
 library ieee;
 use ieee.std_logic_1164.all;
 USE IEEE.numeric_std.all;
+use ieee.math_real.all;
 
 entity ALU is 
 GENERIC (N :INTEGER := 16);
@@ -14,8 +15,8 @@ F : OUT STD_LOGIC_VECTOR (N-1 DOWNTO 0)
 END ENTITY ALU;
 
 ARCHITECTURE A_ALU of ALU is
-Begin
 
+Begin
 process (S,Rsrc,Rdst)
 	variable temp1: std_logic_vector(N-1 downto 0);
 	begin

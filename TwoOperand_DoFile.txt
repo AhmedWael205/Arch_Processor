@@ -52,11 +52,6 @@ sim:/proccesor/ALU_IN_1 \
 sim:/proccesor/ALU_IN_2 \
 sim:/proccesor/SHF_IMM_2 \
 sim:/proccesor/SHF_IMM_3
-# ** Warning: (vsim-WLF-5000) WLF file currently in use: vsim.wlf
-#           File in use by: Ahmed  Hostname: AHMED-PC  ProcessID: 4952
-#           Attempting to use alternate WLF file "./wlftnmzcgg".
-# ** Warning: (vsim-WLF-5001) Could not open WLF file: vsim.wlf
-#           Using alternate file: ./wlftnmzcgg
 add wave -position insertpoint  \
 sim:/proccesor/REG0/R0/output
 add wave -position insertpoint  \
@@ -88,6 +83,32 @@ run
 force -freeze sim:/proccesor/PORT_INOUT x\"ffff\" 0
 run
 force -freeze sim:/proccesor/PORT_INOUT x\"f320\" 0
+run
+run
+run
+run
+run
+run
+run
+run
+run
+run
+run
+run
+run
+run
+run
+run
+run
+run
+run
+run
+run
+run
+run
+run
+run
+run
 run
 run
 run

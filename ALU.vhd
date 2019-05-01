@@ -99,7 +99,8 @@ process (S,Rsrc,Rdst)
 -----------------------------------------------------------------------------------------
 	-- 5- ADD RSRC, RDST
 		elsif S="0101" then
-			f<=std_logic_vector(to_unsigned(((to_integer(signed(Rdst))) + (to_integer(unsigned(Rsrc)))),n));
+			f<=std_logic_vector(to_unsigned(((to_integer(unsigned(Rdst))) + (to_integer(unsigned(Rsrc)))),n));
+			temp1:=std_logic_vector(to_unsigned(((to_integer(unsigned(Rdst))) + (to_integer(unsigned(Rsrc)))),n));
 			Z_en<='1';
 			C_en<='1';
 			N_en<='1';
@@ -108,7 +109,7 @@ process (S,Rsrc,Rdst)
 			else 
 				Z_Flag<='0';
 			end if;
-			if (to_integer(signed(std_logic_vector(to_unsigned(((to_integer(unsigned(Rdst))) + (to_integer(unsigned(Rsrc)))),n)))))< 0 then
+			if temp1(n-1)='1' then
 				N_Flag<='1' ;
 			else 
 				N_Flag<='0';
@@ -122,7 +123,8 @@ process (S,Rsrc,Rdst)
 -----------------------------------------------------------------------------------------
 	-- 6- SUB RSRC, RDST
 		elsif S="0110" then 
-			f<=std_logic_vector(to_unsigned(((to_integer(signed(Rdst))) - (to_integer(unsigned(Rsrc)))),n));
+			f<=std_logic_vector(to_unsigned(abs(((to_integer(unsigned(Rdst))) - (to_integer(unsigned(Rsrc))))),n));
+			temp1:=std_logic_vector(to_unsigned(abs(((to_integer(unsigned(Rdst))) - (to_integer(unsigned(Rsrc))))),n));
 			Z_en<='1';
 			C_en<='1';
 			N_en<='1';
@@ -131,22 +133,22 @@ process (S,Rsrc,Rdst)
 			else 
 				Z_Flag<='0';
 			end if;
-			if (to_integer(signed(std_logic_vector(to_unsigned(((to_integer(unsigned(Rdst))) - (to_integer(unsigned(Rsrc)))),n)))))< 0 then
+			if temp1(n-1)='1' then
 				N_Flag<='1' ;
 			else 
 				N_Flag<='0';
 			end if;
-			if (((to_integer(unsigned(Rdst))) - (to_integer(unsigned(Rsrc)))) > 65535) then	
+			if (to_integer(unsigned(Rdst))) <(to_integer(unsigned(Rsrc))) then	
 				C_Flag<='1' ;
 				
 			else 
 				C_Flag<='0';
 			end if;
 -----------------------------------------------------------------------------------------
--- So far dh sha8al
 	-- 7- AND RSRC, RDST
 		elsif S="0111" then 
 			f<= Rsrc AND Rdst;
+			temp1:=Rsrc AND Rdst;
 			Z_en<='1';
 			C_en<='0';
 			N_en<='1';
@@ -155,7 +157,7 @@ process (S,Rsrc,Rdst)
 			else 
 				Z_Flag<='0';
 			end if;
-			if (to_integer(signed(Rsrc AND Rdst))) < 0 then
+			if temp1(n-1)='1'  then
 				N_Flag<='1' ;
 			else 
 				N_Flag<='0';
@@ -165,6 +167,7 @@ process (S,Rsrc,Rdst)
 	-- 8- OR  RSRC, RDST
 		elsif S="1000" then 
 			f<= Rsrc OR Rdst;
+			temp1:= Rsrc OR Rdst;
 			Z_en<='1';
 			C_en<='0';
 			N_en<='1';
@@ -173,7 +176,7 @@ process (S,Rsrc,Rdst)
 			else 
 				Z_Flag<='0';
 			end if;
-			if (to_integer(signed(Rsrc OR Rdst))) < 0 then
+			if temp1(n-1)='1' then
 				N_Flag<='1' ;
 			else 
 				N_Flag<='0';
@@ -202,8 +205,9 @@ process (S,Rsrc,Rdst)
  	-- 10-SHR RSRC, IMM
 		elsif S="1010" then
 			f<= to_stdlogicvector(to_bitvector(Rsrc) srl (to_integer(unsigned(Rdst))));
+			temp1:= to_stdlogicvector(to_bitvector(Rsrc)srl (to_integer(unsigned(Rdst))-1));
 			Z_en<='1';
-			C_en<='0';
+			C_en<='1';
 			N_en<='1';
 			if (to_integer(unsigned(to_stdlogicvector(to_bitvector(Rsrc) srl (to_integer(unsigned(Rdst))))))) = 0 then
 				Z_Flag<='1' ;
@@ -215,7 +219,7 @@ process (S,Rsrc,Rdst)
 			else 
 				N_Flag<='0';
 			end if;
-			C_Flag<='0';
+			C_Flag<=temp1(0);
 -----------------------------------------------------------------------------------------
 		else 
 			f<= Rdst;

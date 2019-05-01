@@ -1,6 +1,7 @@
 library ieee;
 use ieee.std_logic_1164.all;
 USE IEEE.numeric_std.all;
+use ieee.math_real.all;
 
 Entity proccesor is
 port(
@@ -221,7 +222,7 @@ B2_4 : my_register generic map (3) port map (Instruction(10 downto 8),clk,'0','1
 B2_5 : my_register generic map (16) port map (Instruction(15 downto 0),clk,'0','1',IMM_3(15 downto 0));
 B2_6 : my_register generic map (4) port map (Instruction(15 downto 12),clk,'0','1',EA_3(3 downto 0));
 B2_7 : my_register generic map (16) port map (PORT_INOUT(15 downto 0),clk,'0',IN_TRI_2,PORT_INOUT_3(15 downto 0));
-B2_8 : my_register generic map (16) port map (SHF_IMM_2 (15 downto 0),clk,'0',IN_TRI_2,SHF_IMM_3(15 downto 0));
+B2_8 : my_register generic map (16) port map (SHF_IMM_2 (15 downto 0),clk,'0',ALU_IMM_2,SHF_IMM_3(15 downto 0));
 
 --------------------------------------------------------------------------------------------
 -- Stage Three: EXECUTE

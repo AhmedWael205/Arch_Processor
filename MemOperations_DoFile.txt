@@ -1,0 +1,124 @@
+vsim -gui work.proccesor
+add wave -position insertpoint  \
+sim:/proccesor/PORT_INOUT \
+sim:/proccesor/CLK \
+sim:/proccesor/RstMem \
+sim:/proccesor/RstCounter \
+sim:/proccesor/RstRegs \
+sim:/proccesor/C_FLAG \
+sim:/proccesor/Z_FLAG \
+sim:/proccesor/N_FLAG \
+sim:/proccesor/PC_EN \
+sim:/proccesor/PC_in \
+sim:/proccesor/PC_OUT \
+sim:/proccesor/Counter_Out_2 \
+sim:/proccesor/MEMOUT \
+sim:/proccesor/Instruction \
+sim:/proccesor/IN_TRI_2 \
+sim:/proccesor/IN_TRI_3 \
+sim:/proccesor/IN_TRI_4 \
+sim:/proccesor/IN_TRI_5 \
+sim:/proccesor/REGWRITE1_2 \
+sim:/proccesor/REGWRITE1_3 \
+sim:/proccesor/REGWRITE1_4 \
+sim:/proccesor/REGWRITE1_5 \
+sim:/proccesor/ReadData1_2 \
+sim:/proccesor/ReadData1_3 \
+sim:/proccesor/ReadData1_4 \
+sim:/proccesor/ReadData2_2 \
+sim:/proccesor/ReadData2_3 \
+sim:/proccesor/ReadData2_4 \
+sim:/proccesor/Rdst_3 \
+sim:/proccesor/Rdst_4 \
+sim:/proccesor/Rdst_5 \
+sim:/proccesor/Rsrc_3 \
+sim:/proccesor/Rsrc_4 \
+sim:/proccesor/Rsrc_5 \
+sim:/proccesor/IMM_3 \
+sim:/proccesor/IMM_4 \
+sim:/proccesor/IMM_5 \
+sim:/proccesor/EA_2 \
+sim:/proccesor/EA_3 \
+sim:/proccesor/EA_32 \
+sim:/proccesor/EA_4 \
+sim:/proccesor/WRITEDATA1_5 \
+sim:/proccesor/WRITEDATA2_5 \
+sim:/proccesor/PORT_INOUT_3 \
+sim:/proccesor/PORT_INOUT_4 \
+sim:/proccesor/PORT_INOUT_5 \
+sim:/proccesor/EnableStack_2 \
+sim:/proccesor/EnableStack_3 \
+sim:/proccesor/EnableStack_4 \
+sim:/proccesor/EnableMem_2 \
+sim:/proccesor/EnableMem_3 \
+sim:/proccesor/EnableMem_4 \
+sim:/proccesor/MemToReg_2 \
+sim:/proccesor/MemToReg_3 \
+sim:/proccesor/MemToReg_4 \
+sim:/proccesor/MemToReg_5 \
+sim:/proccesor/MemOut_5 \
+sim:/proccesor/EN_LDM_2 \
+sim:/proccesor/EN_LDM_3 \
+sim:/proccesor/EN_LDM_4 \
+sim:/proccesor/EN_LDM_5 \
+sim:/proccesor/MemPop_2 \
+sim:/proccesor/MemPop_3 \
+sim:/proccesor/MemPop_4 \
+sim:/proccesor/MemPush_2 \
+sim:/proccesor/MemPush_3 \
+sim:/proccesor/MemPush_4 \
+sim:/proccesor/MemWrite_2 \
+sim:/proccesor/MemWrite_3 \
+sim:/proccesor/MemWrite_4 \
+sim:/proccesor/CounterEnable_2 \
+sim:/proccesor/CounterEnable_3 \
+sim:/proccesor/CounterEnable_4 \
+sim:/proccesor/Mem_IN \
+sim:/proccesor/Mem_Address \
+sim:/proccesor/DataFlagIN \
+sim:/proccesor/DataFlagOut
+mem load -i {D:/Documents/CMPN courses/Computer Architecture/Spring 2019/Project/Project/MemoryOperations.mem} /proccesor/M0/ram
+force -freeze sim:/proccesor/RstMem 0 0
+force -freeze sim:/proccesor/RstCounter 1 0
+force -freeze sim:/proccesor/RstRegs 11111111 0
+force -freeze sim:/proccesor/CLK 1 0, 0 {50 ps} -r 100
+run
+add wave -position insertpoint  \
+sim:/proccesor/REG0/R0/output
+add wave -position insertpoint  \
+sim:/proccesor/REG0/R1/output
+add wave -position insertpoint  \
+sim:/proccesor/REG0/R2/output
+add wave -position insertpoint  \
+sim:/proccesor/REG0/R3/output
+add wave -position insertpoint  \
+sim:/proccesor/M0/Stack_Pointer
+force -freeze sim:/proccesor/RstRegs 00000000 0
+force -freeze sim:/proccesor/RstCounter 0 0
+run
+run
+run
+run
+run
+run
+run
+force -freeze sim:/proccesor/PORT_INOUT x\"0019\" 0
+run
+force -freeze sim:/proccesor/PORT_INOUT x\"ffff\" 0
+run
+force -freeze sim:/proccesor/PORT_INOUT x\"f320\" 0
+run
+run
+run
+run
+run
+run
+run
+run
+run
+run
+run
+run
+run
+run
+run

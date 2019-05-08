@@ -6,7 +6,6 @@ port(
 Inst5B : IN std_logic_vector (4 downto 0);
 DataFlag : IN std_logic;
 SETDataFlag :OUT STD_LOGIC;
-controlOut: OUT std_logic_vector (31 downto 0);
 AluSelectors : OUT std_logic_vector (3 downto 0);
 PC_Enable: OUT STD_LOGIC;
 REGWRITE1: OUT STD_LOGIC;
@@ -23,6 +22,8 @@ EnableStack : OUT STD_LOGIC;
 EnableMem : OUT STD_LOGIC;
 MemPop : OUT STD_LOGIC;
 MemPush : OUT STD_LOGIC;
+MemToReg : OUT STD_LOGIC;
+EN_LDM : OUT STD_LOGIC;
 CounterEnable : OUT STD_LOGIC
 );
 end Entity controlunit;
@@ -30,43 +31,45 @@ end Entity controlunit;
 Architecture A_controlunit of controlunit is
 begin
 
-controlOut<=
-     "00000000000000000000000000000000" when Inst5B="00000" -- 1- NOP
-else "00000000000000000000000000000001" when Inst5B="00001" -- 2- SETC
-else "00000000000000000000000000000010" when Inst5B="00010" -- 3- CLRC
-else "00000000000000000000000000000100" when Inst5B="00011" -- 4- NOT RDST
-else "00000000000000000000000000001000" when Inst5B="00100" -- 5- INC RDST
-else "00000000000000000000000000010000" when Inst5B="00101" -- 6- DEC RDST
-else "00000000000000000000000000100000" when Inst5B="00110" -- 7- OUT RDST
-else "00000000000000000000000001000000" when Inst5B="00111" -- 8- IN  RDST
----------------------------------------------------------------------------------------
-else "00000000000000000000000010000000" when Inst5B="01000" -- 9-  MOV RSRC, RDST
-else "00000000000000000000000100000000" when Inst5B="01001" -- 10- ADD RSRC, RDST
-else "00000000000000000000001000000000" when Inst5B="01010" -- 11- MUL RSRC, RDST
-else "00000000000000000000010000000000" when Inst5B="01011" -- 12- SUB RSRC, RDST
-else "00000000000000000000100000000000" when Inst5B="01100" -- 13- AND RSRC, RDST
-else "00000000000000000001000000000000" when Inst5B="01101" -- 14- OR  RSRC, RDST
-else "00000000000000000010000000000000" when Inst5B="01110" -- 15- SHL RSRC, IMM
-else "00000000000000000100000000000000" when Inst5B="01111" -- 16- SHR RSRC, IMM
----------------------------------------------------------------------------------------
-else "00000000000000001000000000000000" when Inst5B="10000" -- 17- PUSH RDST
-else "00000000000000010000000000000000" when Inst5B="10001" -- 18- POP  RDST
-else "00000000000000100000000000000000" when Inst5B="10010" -- 19- LDM  RDST, IMM
-else "00000000000001000000000000000000" when Inst5B="10011" -- 20- LDD  RDST, EA
-else "00000000000010000000000000000000" when Inst5B="10100" -- 21- STD  RSRC, EA
----------------------------------------------------------------------------------------
-else "00000000000100000000000000000000" when Inst5B="10101" -- 22- JZ   RDST
-else "00000000001000000000000000000000" when Inst5B="10110" -- 23- JN   RDST
-else "00000000010000000000000000000000" when Inst5B="10111" -- 24- JC   RDST
-else "00000000100000000000000000000000" when Inst5B="11000" -- 25- JMP  RDST
-else "00000001000000000000000000000000" when Inst5B="11001" -- 26- CALL RDST
-else "00000010000000000000000000000000" when Inst5B="11010" -- 27- RET
-else "00000100000000000000000000000000" when Inst5B="11011" -- 28- RTI
----------------------------------------------------------------------------------------
-else "00001000000000000000000000000000" when Inst5B="11100" -- 29-
-else "00010000000000000000000000000000" when Inst5B="11101" -- 30-
-else "00100000000000000000000000000000" when Inst5B="11110" -- 31-
-else "01000000000000000000000000000000" when Inst5B="11111";-- 32-
+
+-----------------------------------------------------------------------------------------
+--controlOut<=
+--     "00000000000000000000000000000000" when Inst5B="00000" -- 1- NOP
+--else "00000000000000000000000000000001" when Inst5B="00001" -- 2- SETC
+--else "00000000000000000000000000000010" when Inst5B="00010" -- 3- CLRC
+--else "00000000000000000000000000000100" when Inst5B="00011" -- 4- NOT RDST
+--else "00000000000000000000000000001000" when Inst5B="00100" -- 5- INC RDST
+--else "00000000000000000000000000010000" when Inst5B="00101" -- 6- DEC RDST
+--else "00000000000000000000000000100000" when Inst5B="00110" -- 7- OUT RDST
+--else "00000000000000000000000001000000" when Inst5B="00111" -- 8- IN  RDST
+-----------------------------------------------------------------------------------------
+--else "00000000000000000000000010000000" when Inst5B="01000" -- 9-  MOV RSRC, RDST
+--else "00000000000000000000000100000000" when Inst5B="01001" -- 10- ADD RSRC, RDST
+--else "00000000000000000000001000000000" when Inst5B="01010" -- 11- MUL RSRC, RDST
+--else "00000000000000000000010000000000" when Inst5B="01011" -- 12- SUB RSRC, RDST
+--else "00000000000000000000100000000000" when Inst5B="01100" -- 13- AND RSRC, RDST
+--else "00000000000000000001000000000000" when Inst5B="01101" -- 14- OR  RSRC, RDST
+--else "00000000000000000010000000000000" when Inst5B="01110" -- 15- SHL RSRC, IMM
+--else "00000000000000000100000000000000" when Inst5B="01111" -- 16- SHR RSRC, IMM
+-----------------------------------------------------------------------------------------
+--else "00000000000000001000000000000000" when Inst5B="10000" -- 17- PUSH RDST
+--else "00000000000000010000000000000000" when Inst5B="10001" -- 18- POP  RDST
+--else "00000000000000100000000000000000" when Inst5B="10010" -- 19- LDM  RDST, IMM
+--else "00000000000001000000000000000000" when Inst5B="10011" -- 20- LDD  RDST, EA
+--else "00000000000010000000000000000000" when Inst5B="10100" -- 21- STD  RSRC, EA
+-----------------------------------------------------------------------------------------
+--else "00000000000100000000000000000000" when Inst5B="10101" -- 22- JZ   RDST
+--else "00000000001000000000000000000000" when Inst5B="10110" -- 23- JN   RDST
+--else "00000000010000000000000000000000" when Inst5B="10111" -- 24- JC   RDST
+--else "00000000100000000000000000000000" when Inst5B="11000" -- 25- JMP  RDST
+--else "00000001000000000000000000000000" when Inst5B="11001" -- 26- CALL RDST
+--else "00000010000000000000000000000000" when Inst5B="11010" -- 27- RET
+--else "00000100000000000000000000000000" when Inst5B="11011" -- 28- RTI
+-----------------------------------------------------------------------------------------
+--else "00001000000000000000000000000000" when Inst5B="11100" -- 29-
+--else "00010000000000000000000000000000" when Inst5B="11101" -- 30-
+--else "00100000000000000000000000000000" when Inst5B="11110" -- 31-
+--else "01000000000000000000000000000000" when Inst5B="11111";-- 32-
 ------------------------------------------------------------------------------------------------------------------------------
 
 
@@ -128,10 +131,16 @@ else '0';
 MemPush <= '1' when (Inst5B="10000") and dataFlag ='0'
 else '0';
 
-CounterEnable<= '0' when (Inst5B="10000" OR Inst5B="10001" OR Inst5B="10100" OR Inst5B="10011")and dataFlag ='0'
+CounterEnable<= '0' when (Inst5B="10001" OR Inst5B="10011")and dataFlag ='0'
 else '1';
 
 SETDataFlag <='1' when (Inst5B="10010" OR Inst5B="10011" OR Inst5B="10100") and dataFlag ='0'
+else '0';
+
+MemToReg <= '1' when (Inst5B="10011" OR Inst5B="10001") and dataFlag ='0'
+else '0';
+
+EN_LDM <= '1' when (Inst5B="10010") and dataFlag ='0'
 else '0';
 
 end architecture A_controlunit;

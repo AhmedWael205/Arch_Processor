@@ -41,11 +41,11 @@ process (S,Rsrc,Rdst)
 -----------------------------------------------------------------------------------------
 	-- 2- INC RDST
 		elsif S="0010" then 
-			f<= std_logic_vector(to_unsigned((to_integer(unsigned(Rdst)))+1,n));
+
 			Z_en<='1';
 			C_en<='1';
 			N_en<='1';
-			if (to_integer(unsigned(Rdst)))+1 = 0 then
+			if Rdst="1111111111111111"  then
 				Z_Flag<='1' ;
 			else 
 				Z_Flag<='0';
@@ -55,10 +55,15 @@ process (S,Rsrc,Rdst)
 			else 
 				N_Flag<='0';
 			end if;
-			if (to_integer(unsigned(Rdst))) = 65535 then
+			if Rdst="1111111111111111" then
 				C_Flag<='1' ;
 			else 
 				C_Flag<='0';
+			end if;
+			if Rdst="1111111111111111" then
+				f<=(others=>'0');
+			else
+			f<= std_logic_vector(to_unsigned((to_integer(unsigned(Rdst)))+1,n));
 			end if;
 -----------------------------------------------------------------------------------------
 	-- 3- DEC RDST

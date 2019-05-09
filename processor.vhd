@@ -142,6 +142,16 @@ F : OUT STD_LOGIC_VECTOR ((2*N)-1 DOWNTO 0)
 );
 END Component MUL;
 --------------------------------------------------------------------------------------------
+--forwarding unit **new
+Component forwarding_unit is 
+Port(
+clk: in std_logic;
+Rdst_EXE_MEM, Rdst_MEM_WB,Rdst_ID_EXE , Rsrc_MEM_WB,Rsrc_EXE_MEM, Rsrc_ID_EXE: in std_logic_vector(2 downto 0);
+RW1_EXE_MEM, RW2_EXE_MEM, RW1_MEM_WB, RW2_MEM_WB, RW1_ID_EXE, RW2_ID_EXE: in std_logic;
+ALU_SRC_SEL,MUL_SRC_SEL,ALU_DST_SEL,MUL_DST_SEL: out std_logic_vector(2 downto 0)  
+);
+END Component forwarding_unit;
+--------------------------------------------------------------------------------------------
 
 signal C_FLAG,C_FLAG_IN,C_FLAG_IN_1,C_EN_1,C_EN : STD_Logic:='0';
 signal Z_FLAG,Z_FLAG_IN,Z_FLAG_IN_1,Z_FLAG_IN_2,Z_EN_1,Z_EN_2,Z_EN: STD_Logic:='0';
@@ -183,6 +193,9 @@ signal Mem_Address : std_logic_vector(19 DOWNTO 0);
 signal DataFlagIN_1,DataFlagIN_2,DataFlagIN,DataFlagOut : std_logic:='0';
 signal MemToReg_2,MemToReg_3,MemToReg_4,MemToReg_5 : std_logic:='0'; 
 signal EN_LDM_2,EN_LDM_3,EN_LDM_4,EN_LDM_5 : std_logic:='0';   
+------------------------------**NEW
+signal Alu_src_Sel,Mul_src_sel,Alu_dst_Sel,Mul_dst_sel:std_logic_vector(2 downto 0); 
+signal MUL_IN_1,MUL_IN_2 : std_logic_vector (15 downto 0);
 
 --------------------------------------------------------------------------------------------
 
@@ -263,12 +276,42 @@ B2_8 : my_register generic map (16) port map (SHF_IMM_2 (15 downto 0),clk,'0',AL
 --------------------------------------------------------------------------------------------
 -- Stage Three: EXECUTE
 
-ALU_IN_1 (15 downto 0) <= ReadData2_3(15 downto 0);
-ALU_IN_2 (15 downto 0) <= ReadData1_3(15 downto 0) when ALU_IMM_3 = '0'
-		   else   SHF_IMM_3(15 downto 0);   
+---------***new
+ALU_IN_1 (15 downto 0) <=  ReadData2_4 when Alu_src_Sel="001" and REGWRITE2_4='0'
+else MUL_OUT_4(31 downto 16) when Alu_src_Sel="001" and REGWRITE2_4='1'
+else ALU_OUT_4(15 downto 0) when Alu_src_Sel="010" and REGWRITE2_4='0'
+else  MUL_OUT_4(15 downto 0) when Alu_src_Sel="010" and REGWRITE2_4='1'
+else WRITEDATA1_5 when Alu_src_Sel="011"
+else WRITEDATA2_5 when Alu_src_Sel="100"
+else ReadData2_3(15 downto 0);
+---------***new
+ALU_IN_2 (15 downto 0) <= ReadData2_4 when Alu_dst_Sel="001"and REGWRITE2_4='0'
+else MUL_OUT_4(31 downto 16) when Alu_dst_Sel="001" and REGWRITE2_4='1'
+else ALU_OUT_4(15 downto 0)  when Alu_dst_Sel="010" and REGWRITE2_4='0'
+else MUL_OUT_4(15 downto 0)  when Alu_dst_Sel="010" and REGWRITE2_4='1'
+else WRITEDATA1_5 when Alu_dst_Sel="011"
+else WRITEDATA2_5 when Alu_dst_Sel="100"
+else ReadData1_3(15 downto 0) when ALU_IMM_3 = '0'
+else   SHF_IMM_3(15 downto 0); 
+-------------**new
+MUL_IN_1(15 DOWNTO 0)<=  ReadData2_4 when Mul_src_Sel="001" and REGWRITE2_4='0'
+else MUL_OUT_4(31 downto 16) when Mul_src_Sel="001" and REGWRITE2_4='1'
+else ALU_OUT_4(15 downto 0) when Mul_src_Sel="010"  and REGWRITE2_4='0'
+else MUL_OUT_4(15 downto 0)  when Mul_src_Sel="010"  and REGWRITE2_4='1'
+else WRITEDATA1_5 when Mul_src_Sel="011"
+else WRITEDATA2_5 when Mul_src_Sel="100"
+ELSE ReadData2_3(15 downto 0);
+----------------**NEW
+MUL_IN_2(15 DOWNTO 0)<=  ReadData2_4 when Mul_dst_Sel="001" and REGWRITE2_4='0'
+else MUL_OUT_4(31 downto 16) when Mul_dst_Sel="001" and REGWRITE2_4='1'
+else ALU_OUT_4(15 downto 0) when Mul_dst_Sel="010" and REGWRITE2_4='0'
+else MUL_OUT_4(15 downto 0) when Mul_dst_Sel="010"and REGWRITE2_4='0'
+else WRITEDATA1_5 when Mul_dst_Sel="011"
+else WRITEDATA2_5 when Mul_dst_Sel="100"
+else ReadData1_3(15 downto 0);  
 
 A0 : ALU port map (ALU_IN_1 (15 downto 0),ALU_IN_2 (15 downto 0),AluSelectors_3(3 downto 0),C_FLAG_IN_1,Z_FLAG_IN_1,N_FLAG_IN_1,C_EN_1,Z_EN_1,N_EN_1,ALU_OUT_3(15 downto 0));
-MUL0 : MUL generic map (16) port map (ReadData2_3(15 downto 0),ReadData1_3(15 downto 0),MUL_EN_3,Z_FLAG_IN_2,N_FLAG_IN_2,Z_EN_2,N_EN_2,MUL_OUT_3(31 downto 0));
+MUL0 : MUL generic map (16) port map (MUL_IN_1(15 DOWNTO 0),MUL_IN_2(15 DOWNTO 0),MUL_EN_3,Z_FLAG_IN_2,N_FLAG_IN_2,Z_EN_2,N_EN_2,MUL_OUT_3(31 downto 0));
 
 
 C_FLAG_IN <= C_FLAG_IN_1 OR SETC_3 ;
@@ -287,6 +330,9 @@ Zero : register1B port map (Z_FLAG_IN,clk,'0',Z_EN,Z_FLAG);
 T0 : my_tribuffer generic map (16) port map (ReadData1_3(15 downto 0),OUT_TRI_3,PORT_INOUT(15 downto 0));
 
 EA_32<= EA_3(19 downto 16) & Instruction(15 downto 0);
+-----****new
+FU:forwarding_unit generic map(3) port map(clk,Rdst_4,Rdst_5,Rdst_3,Rsrc_5,Rsrc_4,Rsrc_3,REGWRITE1_4,REGWRITE2_4,REGWRITE1_5,REGWRITE2_5,REGWRITE1_3,REGWRITE2_3,ALu_src_Sel,Mul_src_Sel,ALu_dst_Sel,Mul_dst_Sel);
+
 
 --------------------------------------------------------------------------------------------
 -- EXE/MEM BUFFERS
